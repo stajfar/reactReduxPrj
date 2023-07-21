@@ -3,13 +3,15 @@ import { useDispatch } from 'react-redux'
 import counterReducer from '../features/counterSlice';
 import postsReducer from '../features/posts/PostsSlice';
 import userReducer from '../features/users/UsersSlice';
+import patientsReducer from '../features/eforms/eformsSlice';
 
 export const store = configureStore(
     {
         reducer: {
             storeCounter: counterReducer, //import slice reducers
             storePosts: postsReducer,
-            storeUsers: userReducer
+            storeUsers: userReducer,
+            storePatients: patientsReducer,
         }
 
     });

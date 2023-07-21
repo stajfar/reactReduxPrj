@@ -2,7 +2,6 @@ import React, { FormEvent, useState, useEffect } from 'react';
 import validator from '@rjsf/validator-ajv8';
 import Form from '@rjsf/mui';
 import { RJSFSchema, UiSchema } from '@rjsf/utils';
-import postsApi from '../../api/Posts';
 import { IChangeEvent } from '@rjsf/core';
 import { nanoid } from '@reduxjs/toolkit';
 import {  useDispatch } from 'react-redux';

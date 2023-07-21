@@ -15,6 +15,8 @@
     <Folder Include="data\" />
     <Folder Include="src\app\" />
     <Folder Include="src\features\api\" />
+    <Folder Include="src\features\hooks\" />
+    <Folder Include="src\features\eforms\" />
     <Folder Include="src\features\users\" />
   </ItemGroup>
 </Project>

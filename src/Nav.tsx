@@ -27,6 +27,7 @@ function Nav({ search, setSearch }: any) {
                 <li><Link to="/" >Home</Link></li>
                 <li><Link to="about" >About</Link></li>
                 <li><Link to="post2" >New Post</Link></li>
+                <li><Link to="fhirform" >FHIR Form</Link></li>
             </ul>
 
             <button onClick={() => dispatch(increaseTestCounter())}>{count}</button>

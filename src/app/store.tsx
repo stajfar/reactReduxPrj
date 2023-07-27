@@ -4,7 +4,7 @@ import counterReducer from '../features/counterSlice';
 import postsReducer from '../features/posts/PostsSlice';
 import userReducer from '../features/users/UsersSlice';
 import patientsReducer from '../features/eforms/eformsSlice';
-import fhirPatientReducer from '../features/FHIR/FhirResourceSlice';
+import fhirResourceReducer from '../features/FHIR/FhirResourceSlice';
 
 export const store = configureStore(
     {
@@ -13,7 +13,7 @@ export const store = configureStore(
             storePosts: postsReducer,
             storeUsers: userReducer,
             storePatients: patientsReducer,
-            storeFhirPatient: fhirPatientReducer
+            storeFhirResouces: fhirResourceReducer
         }
 
     });

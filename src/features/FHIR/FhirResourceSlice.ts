@@ -1,61 +1,69 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import Client from 'fhirclient/lib/Client';
+import { fhirclient } from 'fhirclient/lib/types';
 
 
 //#region TS Data Types
-
-
-export interface PatientState {
-    patient: any,
+export interface FhirResourceState {
+    fhirResouces: { patient: fhirclient.FHIR.Patient, practitioner: fhirclient.FHIR.Practitioner},
+    //practitioner: fhirclient.FHIR.Practitioner,
     status: string,
     errors: string
 }
-
 //#endregion
 
 
-const initialState: PatientState = {
-    patient: {},
+const initialState: FhirResourceState = {
+    fhirResouces: { patient: { resourceType: "Patient" }, practitioner: { resourceType: "Practitioner" } },
+   // practitioner: { resourceType: "Practitioner" },
     status: 'idle',
     errors: ''
 }
 
 
-export const fetchPatient = createAsyncThunk('fetchFhirPatient/patient', async (fhirClientState: Client) => {
+export const fetchFhirResources = createAsyncThunk('fetchFhirPatient/patient', async (fhirClientState: Client) => {
     console.log('geting fhir Patient by AsyncThunk');
     //get patient from fhir client (fhir client makes an http call to the fhir server to get the patient)
+    let result: { patient: fhirclient.FHIR.Patient, practitioner: fhirclient.FHIR.Practitioner } = { patient: { resourceType: "Patient" }, practitioner: { resourceType: "Practitioner" } };
 
     if (fhirClientState.hasOwnProperty('patient')) {
-    let patientData = await fhirClientState.patient.read(); //make this async  with await
+        let patientData = await fhirClientState.patient.read(); //make this async  with await
         //console.log(patientData);
-        return patientData;
+        result.patient = patientData as fhirclient.FHIR.Patient;
     }
 
-    return {};    
+    if (fhirClientState.hasOwnProperty('user')) {
+        let practitionerData = await fhirClientState.user.read();//make this async with await clientState.user.read()
+        result.practitioner = practitionerData as fhirclient.FHIR.Practitioner;
+    }
+
+    return result;    
 });
 
+
+
 //create slice
-const patientSlice = createSlice({
-    name: 'fhirPatient',
+const fhirResourceSlice = createSlice({
+    name: 'fhirResources',
     initialState: initialState,
-    reducers: {// just to change the state
-        getUsers: (state, action) => { state.patient = action.payload; },// no need for this, componet gets from the store directly
+    reducers: {
+       // getUsers: (state, action) => { state.patient = action.payload; },// no need for this, componet gets from the store directly
     },
     extraReducers(builder) {
         builder
-            .addCase(fetchPatient.pending, (state, action) => { state.status = 'loading' })
-            .addCase(fetchPatient.fulfilled, (state, action) => {
+            .addCase(fetchFhirResources.pending, (state, action) => { state.status = 'loading' })
+            .addCase(fetchFhirResources.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.patient = action.payload
+                state.fhirResouces = action.payload as { patient: fhirclient.FHIR.Patient, practitioner: fhirclient.FHIR.Practitioner };
             })
-            .addCase(fetchPatient.rejected, (state, action) => {
+            .addCase(fetchFhirResources.rejected, (state, action) => {
                 state.status = 'failed';
                 state.errors = action.error.message ?? 'unknown error message';
             })
     }
 });
 
-export const selectFhirPatient = (state: any) => state.storeFhirPatient as PatientState;
+export const selectFhirResources = (state: any) => state.storeFhirResouces as FhirResourceState;
 
 //export reducer to be available for the store
-export default patientSlice.reducer;
+export default fhirResourceSlice.reducer;

@@ -2,42 +2,32 @@ import Client from 'fhirclient/lib/Client';
 import React, { useEffect, useContext } from 'react';
 import { useAppDispatch } from '../../app/store';
 import FhirClientDataContext from './FhirClientContext';
-import { fetchPatient } from './FhirResourceSlice';
+import { fetchFhirResources } from './FhirResourceSlice';
+import { useNavigate } from 'react-router-dom';
 
 function LaunchRedirect() {
 
     const clientState = (useContext(FhirClientDataContext) as any).FhirClientState as Client;
-
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
    
   
     useEffect(() => {
         if (clientState) {
            
-            console.log('getting patient and practitioenr from fhir client, haha');
+            console.log('getting patient and practitioenr from fhir client (set state), and redirect to fhirForm');
           
            
             try {
-                let data = [];
-
                
-                if (clientState.hasOwnProperty('user')) {
-                    let practitionerData = clientState.user.read();//make this async with await clientState.user.read()
-                    console.log(practitionerData);
-                    data.push(practitionerData);
-                }
+                dispatch(fetchFhirResources(clientState));
 
-                dispatch(fetchPatient(clientState));
-
-                //if (clientState.hasOwnProperty('patient')) {
-                //    let patientData = clientState.patient.read(); //make this async  with await
-                //    console.log(patientData);
-                //    data.push(patientData);
-                //}
+                //after Store is set, navigate to the landing page
+                navigate('/fhirform');
             }
             catch { }
         }
-    }, [dispatch, clientState]);
+    }, [dispatch, clientState, navigate]);
 
 
     return (

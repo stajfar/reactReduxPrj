@@ -10,7 +10,7 @@ import fhirPath from "fhirpath";
 import fhirpath_r4_model from 'fhirpath/fhir-context/r4';
 
 import { useSchemaResolver } from '../hooks/useSchemaResolver';
-import { selectFhirPatient } from '../FHIR/FhirResourceSlice';
+import { selectFhirResources } from '../FHIR/FhirResourceSlice';
 
 //extend JSONSchema7 by enumNames
 import { JSONSchema7 } from 'json-schema';
@@ -73,7 +73,7 @@ function FhirForm() {
             "ui:placeholder": "First Name",
             "ui:autocomplete": "patient-firstname",
             "ui:enableMarkdownInDescription": true,
-            "ui:description": "Make text **bold** or *italic*. Take a look at other options "
+            "ui:description": "Make text **bold** or *italic*. Take a look at other options ",
         },
         "lastname": {
             "ui:emptyValue": "",
@@ -85,11 +85,11 @@ function FhirForm() {
     };
 
 
-    const patientState = useSelector(selectFhirPatient);//this is fhir patient need to use fhir path to get its details.
-    const patient = patientState.patient;
+    const fhirResourceState = useSelector(selectFhirResources);//this is fhir patient need to use fhir path to get its details.
+    const patient = fhirResourceState.fhirResouces.patient;
 
     console.log('patient state seleted succ from the store');
-    console.log(patientState);
+    console.log(fhirResourceState);
    
 
 

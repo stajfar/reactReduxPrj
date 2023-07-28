@@ -22,9 +22,9 @@ function FhirForm() {
     const schema = {
         "type": "object",
         "properties": {
-            "firstName": {
+            "patientFirstName": {
                 "type": "string",
-                "minLength": 3,
+                "minLength": 2,
                 "description": "Please enter  first name",
                 "custompProperties": [
                     {
@@ -33,9 +33,9 @@ function FhirForm() {
                     }
                 ]
             },
-            "lastName": {
+            "patientLastName": {
                 "type": "string",
-                "minLength": 3,
+                "minLength": 2,
                 "description": "Please enter last name",
                 "custompProperties": [
                     {
@@ -44,52 +44,126 @@ function FhirForm() {
                     }
                 ]
             },          
-            "birthDate": {
+            "patientBirthDate": {
+                "type": "string",
+                "format": "date",
+                "custompProperties": [
+                    {
+                        "key": "fhirElement",
+                        "value": "Patient.birthDate"
+                    }
+                ]
+            },
+            "patientPhone": {
+                "type": "string",
+                "minLength": 2,
+                "description": "Please enter phone number",
+                "custompProperties": [
+                    {
+                        "key": "fhirElement",
+                        "value": "Patient.telecom.where(system='phone').value"
+                    }
+                ]
+            },  
+            //"personalData": {
+            //    "type": "object",
+            //    "properties": {
+            //        "patientAge": {
+            //            "type": "integer",
+            //            "description": "Please enter your age."
+            //        }
+            //    },
+            //    "required": [
+            //        "patientAge"
+            //    ]
+            //},
+            "providerFirstName": {
+                "type": "string",
+                "minLength": 2,
+                "description": "Please enter  first name",
+                "custompProperties": [
+                    {
+                        "key": "fhirElement",
+                        "value": "Practitioner.name.where(use='official').given.first()"
+                    }
+                ]
+            },
+            "providerLastName": {
+                "type": "string",
+                "minLength": 2,
+                "description": "Please enter last name",
+                "custompProperties": [
+                    {
+                        "key": "fhirElement",
+                        "value": "Practitioner.name.where(use='official').family.first()"
+                    }
+                ]
+            },
+            "providerBirthDate": {
                 "type": "string",
                 "format": "date"
-            },           
-            "personalData": {
-                "type": "object",
-                "properties": {
-                    "age": {
-                        "type": "integer",
-                        "description": "Please enter your age."
-                    }
-                },
-                "required": [
-                    "age"
-                ]
-            }           
+            }
         },
        
     };
     const uischema = {
-        "type": "VerticalLayout",
+        "type": "HorizontalLayout",
         "elements": [
             {
-                "type": "HorizontalLayout",
+                "type": "Group",
+                "label": "Patient Information",
                 "elements": [
                     {
-                        "type": "Control",
-                        "scope": "#/properties/firstName"
-                    },
-                    {
-                        "type": "Control",
-                        "scope": "#/properties/lastName"
-                    },
-                    {
-                        "type": "Control",
-                        "scope": "#/properties/personalData/properties/age"
-                    },
-                    {
-                        "type": "Control",
-                        "scope": "#/properties/birthDate"
+                        "type": "VerticalLayout",
+                        "elements": [
+                            {
+                                "type": "Control",
+                                "scope": "#/properties/patientFirstName"
+                            },
+                            {
+                                "type": "Control",
+                                "scope": "#/properties/patientLastName"
+                            },
+                            //{
+                            //    "type": "Control",
+                            //    "scope": "#/properties/personalData/properties/patientAge"
+                            //},
+                            {
+                                "type": "Control",
+                                "scope": "#/properties/patientBirthDate"
+                            },
+                            {
+                                "type": "Control",
+                                "scope": "#/properties/patientPhone"
+                            }
+                        ]
                     }
                 ]
             },
             {
-                "type": "Label",
-                "text": "Additional Information"
+                "type": "Group",
+                "label": "Practitioner Information",
+                "elements": [
+                    {
+                        "type": "VerticalLayout",
+                        "elements": [
+                            {
+                                "type": "Control",
+                                "label": "First Name",
+                                "scope": "#/properties/providerFirstName"
+                            },
+                            {
+                                "type": "Control",
+                                "label": "Last Name",
+                                "scope": "#/properties/providerLastName"
+                            },
+                            {
+                                "type": "Control",
+                                "scope": "#/properties/providerBirthDate"
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     };
@@ -113,15 +187,30 @@ function FhirForm() {
 
             if (fhirResourceState.status === 'succeeded') {
                 const patient = fhirResourceState.fhirResouces.patient;
+                const practitioner = fhirResourceState.fhirResouces.practitioner;
 
                 let initialFormData: any = {};
                 schemaResolver(schema).forEach((fhirPath, key) => {
-                    const value = findInFhirPath(patient, fhirPath);
-                    initialFormData[key] = value[0];
+                    if (fhirPath.toLowerCase().startsWith('patient')) {
+                        const value = findInFhirPath(patient, fhirPath);
+                        initialFormData[key] = value[0];
+                    }
+
+                    if (fhirPath.toLowerCase().startsWith('practitioner')) {
+                        const value = findInFhirPath(practitioner, fhirPath);
+                        initialFormData[key] = value[0];
+                    }
+                   
                 });
+               
+
+                //schemaResolver(schema).forEach((fhirPath, key) => {
+                //    const value = findInFhirPath(practitioner, fhirPath);
+                //    initialFormData[key] = value[0];
+                //});
 
                 //console.log('setting SubmissionState in useEffect to:');
-                //console.log(submissionState); 
+                
                 setSubmissionState(initialFormData);
             }
         } catch (error: any) {

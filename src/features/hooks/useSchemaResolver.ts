@@ -1,16 +1,17 @@
-import { RJSFSchema } from '@rjsf/utils';
-import { JSONSchema7 } from 'json-schema';
-declare module 'json-schema' {//extending
-    export interface JSONSchema7 {
-        custompProperties?: { key: string, value: string }[];//array of key-value
-    }
-}
+//import { RJSFSchema } from '@rjsf/utils';
+//import { JSONSchema7 } from 'json-schema';
+//declare module 'json-schema' {//extending
+//    export interface JSONSchema7 {
+//        custompProperties?: { key: string, value: string }[];//array of key-value
+//    }
+//}
+
+import {  JsonSchema } from '@jsonforms/core';
+
+ 
 
 
-  
-
-
-export const useSchemaResolver = (schema: RJSFSchema) => {
+export const schemaResolver = (schema: JsonSchema) => {
 
     console.log('schema resolver');
    

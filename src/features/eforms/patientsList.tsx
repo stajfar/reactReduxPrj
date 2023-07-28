@@ -8,7 +8,7 @@ import {
     fetchPatients,
     selectPatientsState
 } from './eformsSlice';
-import PatientSummary from './PatientSummary';
+//import PatientSummary from './PatientSummary';
 
 
 function Patients() {
@@ -48,8 +48,8 @@ function Patients() {
         if (patientsState === 'loading') {
             content = <p> loading patients </p >;
         } else if (patientsState === 'succeeded') {
-           
-            content = <>{orderedPatintsIds.map(patientId => (<PatientSummary key={patientId} id={patientId}></PatientSummary>))}</>
+            <p> Error in loading patients' </p >//temp
+            //content = <>{orderedPatintsIds.map(patientId => (<PatientSummary key={patientId} id={patientId}></PatientSummary>))}</>
         } else if (patientsState === 'failed') {
             <p> Error in loading patients' </p >
         }

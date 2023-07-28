@@ -1,49 +1,31 @@
 import React, { FormEvent, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-
-import validator from '@rjsf/validator-ajv8';
-import Form from '@rjsf/mui';
-import { RJSFSchema, UiSchema } from '@rjsf/utils';
-import { IChangeEvent } from '@rjsf/core';
-
 import fhirPath from "fhirpath";
 import fhirpath_r4_model from 'fhirpath/fhir-context/r4';
 
-import { useSchemaResolver } from '../hooks/useSchemaResolver';
+import { schemaResolver } from '../hooks/useSchemaResolver';
 import { selectFhirResources } from '../FHIR/FhirResourceSlice';
 
-//extend JSONSchema7 by enumNames
-import { JSONSchema7 } from 'json-schema';
-declare module 'json-schema' {
-    export interface JSONSchema7 {
-        custompProperties?: { key: string, value: string }[];//array of key-value
-    }
-}
+import {
+    materialCells,
+    materialRenderers,
+} from '@jsonforms/material-renderers';
+import { JsonForms } from '@jsonforms/react';
 
 
 
-//it is recommended to pass in the ids to child components like this component as following
 function FhirForm() {
 
-    const [submissionState, setSubmissionState] = useState({});
 
-    console.log('loading patient summary')
+   
 
-
-
-    //these goes to DB ---> schema, uiSchema
-    const schema: RJSFSchema = {
-        "title": "A registration form",
-        "description": "Desctiption of the Form, as a sample.",
+    const schema = {
         "type": "object",
-        "required": [
-            "firstname",
-            "lastname"
-        ],
         "properties": {
-            "firstname": {
+            "firstName": {
                 "type": "string",
-                "title": "First Name",
+                "minLength": 3,
+                "description": "Please enter  first name",
                 "custompProperties": [
                     {
                         "key": "fhirElement",
@@ -51,82 +33,128 @@ function FhirForm() {
                     }
                 ]
             },
-            "lastname": {
+            "lastName": {
                 "type": "string",
-                "title": "Last Name",
+                "minLength": 3,
+                "description": "Please enter last name",
                 "custompProperties": [
                     {
                         "key": "fhirElement",
                         "value": "Patient.name.where(use='official').family.first()"
                     }
                 ]
-            }
-        }
-    };
-
-
-
-    const uiSchema: UiSchema = {
-        "firstname": {
-            "ui:autofocus": true,
-            "ui:emptyValue": "",
-            "ui:placeholder": "First Name",
-            "ui:autocomplete": "patient-firstname",
-            "ui:enableMarkdownInDescription": true,
-            "ui:description": "Make text **bold** or *italic*. Take a look at other options ",
+            },          
+            "birthDate": {
+                "type": "string",
+                "format": "date"
+            },           
+            "personalData": {
+                "type": "object",
+                "properties": {
+                    "age": {
+                        "type": "integer",
+                        "description": "Please enter your age."
+                    }
+                },
+                "required": [
+                    "age"
+                ]
+            }           
         },
-        "lastname": {
-            "ui:emptyValue": "",
-            "ui:placeholder": "Last Name",
-            "ui:autocomplete": "patient-lastname",
-            "ui:enableMarkdownInDescription": true,
-            "ui:description": "Make things **bold** or *italic*. Embed snippets of `code`. <small>And this is a small texts.</small> ",
-        }
+       
+    };
+    const uischema = {
+        "type": "VerticalLayout",
+        "elements": [
+            {
+                "type": "HorizontalLayout",
+                "elements": [
+                    {
+                        "type": "Control",
+                        "scope": "#/properties/firstName"
+                    },
+                    {
+                        "type": "Control",
+                        "scope": "#/properties/lastName"
+                    },
+                    {
+                        "type": "Control",
+                        "scope": "#/properties/personalData/properties/age"
+                    },
+                    {
+                        "type": "Control",
+                        "scope": "#/properties/birthDate"
+                    }
+                ]
+            },
+            {
+                "type": "Label",
+                "text": "Additional Information"
+            }
+        ]
     };
 
-
+  
     const fhirResourceState = useSelector(selectFhirResources);//this is fhir patient need to use fhir path to get its details.
-    const patient = fhirResourceState.fhirResouces.patient;
-
-    console.log('patient state seleted succ from the store');
-    console.log(fhirResourceState);
    
 
+    console.log('patient state seleted succ from the store');   
 
-    const initialFormData = Object.fromEntries(useSchemaResolver(schema)?.entries());
-
-
+    const [submissionState, setSubmissionState] = useState(null);
 
     const findInFhirPath = (resource: any, path: string) => {
         return fhirPath.evaluate(resource, path, undefined, fhirpath_r4_model);
     }
 
-    useSchemaResolver(schema).forEach((fhirPath, key) => {
-        const value = findInFhirPath(patient, fhirPath);
-        initialFormData[key] = value[0];
-    })
+
+    useEffect(() => {       
+      console.log('use effect executing');
+        try {
+
+            if (fhirResourceState.status === 'succeeded') {
+                const patient = fhirResourceState.fhirResouces.patient;
+
+                let initialFormData: any = {};
+                schemaResolver(schema).forEach((fhirPath, key) => {
+                    const value = findInFhirPath(patient, fhirPath);
+                    initialFormData[key] = value[0];
+                });
+
+                //console.log('setting SubmissionState in useEffect to:');
+                //console.log(submissionState); 
+                setSubmissionState(initialFormData);
+            }
+        } catch (error: any) {
+            if (error.response) {
+                console.log(error.response.data);
+                console.log(error.response.headers);
+                console.log(error.response.status);
+            } else {
+                console.log(error.message);
+            }
+        }
+       
+    }, [fhirResourceState]);//avoid using object directly as depandancy firstobj is not === to 2nd object// or use premitives
 
 
 
-    useEffect(() => {
-        setSubmissionState(initialFormData);
-    }, [initialFormData.firstname]);//avoid using object directly as depandancy firstobj is not === to 2nd object// or use premitives
-
-
-
-
-    // console.log();
-
-    const handleFormChange = (data: IChangeEvent, control?: string) => {
-        if (data.formData)
-            setSubmissionState(data.formData);
+    const handleFormChange = (data: any, errors: any) => {
+        console.log('data on form change');
+        console.log(data);
+        //console.log('data on form change error');
+        //console.log(errors);
+       
+        if (data)
+            setSubmissionState(data);
     }
 
-    const handleFormSubmit = (data: IChangeEvent, event: FormEvent) => {
-        if (data.formData) {
+    const handleFormSubmit = (event: any) => {
+        console.log(event);
+      event.preventDefault()
+        if (submissionState) {
 
-
-            const entry: any = JSON.parse(JSON.stringify(data.formData));
+            console.log(submissionState);
+            const entry: any = JSON.parse(JSON.stringify(submissionState));
 
             console.log(entry);
 
@@ -136,7 +164,7 @@ function FhirForm() {
                     console.log('form submitted');
 
                     //reset form after adding the post
-                    setSubmissionState({});
+                    setSubmissionState(null);
 
                 } catch (error: any) {
                     if (error.response) {
@@ -159,21 +187,26 @@ function FhirForm() {
             submitPosts();
         }
     }
-    const log = (type: any) => console.log.bind(console, type);
+   // const log = (type: any) => console.log.bind(console, type);
 
-    return (
+    return (       
         <article className="post">
-            {patient && <>
-                <Form
+            {             
+                <>
+                  
+                {/*{console.log('print state')}*/}
+                {/*{console.log(submissionState)}*/}
+                 
+                <JsonForms
                     schema={schema}
-                    uiSchema={uiSchema}
-                    validator={validator}
-                    onChange={handleFormChange}
-                    onSubmit={handleFormSubmit}
-                    onError={log('errors')}
-                    formData={submissionState}
+                    uischema={uischema}
+                    data={submissionState}
+                    renderers={materialRenderers}
+                    cells={materialCells}
+                    onChange={({ errors, data }) => handleFormChange(data, errors)}
                 />
-
+              
+                <button type='button' onClick={handleFormSubmit}>Update Post</button>
 
             </>}
         </article>

@@ -12,161 +12,179 @@ import {
 } from '@jsonforms/material-renderers';
 import { JsonForms } from '@jsonforms/react';
 
+import { Button } from '@mui/material';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
+import { green, purple } from '@mui/material/colors';
+
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: purple[500],
+        },
+        secondary: {
+            main: green[500],
+        },
+    }
+});
+
+
+//move schema and ui schema to DB and get them from fhir store
+const schema = {
+    "type": "object",
+    "properties": {
+        "patientFirstName": {
+            "type": "string",
+            "minLength": 2,
+            "description": "Please enter  first name",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.name.where(use='official').given.first()"
+                }
+            ]
+        },
+        "patientLastName": {
+            "type": "string",
+            "minLength": 2,
+            "description": "Please enter last name",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.name.where(use='official').family.first()"
+                }
+            ]
+        },
+        "patientBirthDate": {
+            "type": "string",
+            "format": "date",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.birthDate"
+                }
+            ]
+        },
+        "patientPhone": {
+            "type": "string",
+            "minLength": 2,
+            "description": "Please enter phone number",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.telecom.where(system='phone').value"
+                }
+            ]
+        },
+        //"personalData": {
+        //    "type": "object",
+        //    "properties": {
+        //        "patientAge": {
+        //            "type": "integer",
+        //            "description": "Please enter your age."
+        //        }
+        //    },
+        //    "required": [
+        //        "patientAge"
+        //    ]
+        //},
+        "providerFirstName": {
+            "type": "string",
+            "minLength": 2,
+            "description": "Please enter  first name",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Practitioner.name.where(use='official').given.first()"
+                }
+            ]
+        },
+        "providerLastName": {
+            "type": "string",
+            "minLength": 2,
+            "description": "Please enter last name",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Practitioner.name.where(use='official').family.first()"
+                }
+            ]
+        },
+        "providerBirthDate": {
+            "type": "string",
+            "format": "date"
+        }
+    },
+
+};
+const uischema = {
+    "type": "HorizontalLayout",
+    "elements": [
+        {
+            "type": "Group",
+            "label": "Patient Information",
+            "elements": [
+                {
+                    "type": "VerticalLayout",
+                    "elements": [
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/patientFirstName"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/patientLastName"
+                        },
+                        //{
+                        //    "type": "Control",
+                        //    "scope": "#/properties/personalData/properties/patientAge"
+                        //},
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/patientBirthDate"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/patientPhone"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Group",
+            "label": "Practitioner Information",
+            "elements": [
+                {
+                    "type": "VerticalLayout",
+                    "elements": [
+                        {
+                            "type": "Control",
+                            "label": "First Name",
+                            "scope": "#/properties/providerFirstName"
+                        },
+                        {
+                            "type": "Control",
+                            "label": "Last Name",
+                            "scope": "#/properties/providerLastName"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/providerBirthDate"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+};
+
+
 
 
 function FhirForm() {
 
+ 
 
-   
-
-    const schema = {
-        "type": "object",
-        "properties": {
-            "patientFirstName": {
-                "type": "string",
-                "minLength": 2,
-                "description": "Please enter  first name",
-                "custompProperties": [
-                    {
-                        "key": "fhirElement",
-                        "value": "Patient.name.where(use='official').given.first()"
-                    }
-                ]
-            },
-            "patientLastName": {
-                "type": "string",
-                "minLength": 2,
-                "description": "Please enter last name",
-                "custompProperties": [
-                    {
-                        "key": "fhirElement",
-                        "value": "Patient.name.where(use='official').family.first()"
-                    }
-                ]
-            },          
-            "patientBirthDate": {
-                "type": "string",
-                "format": "date",
-                "custompProperties": [
-                    {
-                        "key": "fhirElement",
-                        "value": "Patient.birthDate"
-                    }
-                ]
-            },
-            "patientPhone": {
-                "type": "string",
-                "minLength": 2,
-                "description": "Please enter phone number",
-                "custompProperties": [
-                    {
-                        "key": "fhirElement",
-                        "value": "Patient.telecom.where(system='phone').value"
-                    }
-                ]
-            },  
-            //"personalData": {
-            //    "type": "object",
-            //    "properties": {
-            //        "patientAge": {
-            //            "type": "integer",
-            //            "description": "Please enter your age."
-            //        }
-            //    },
-            //    "required": [
-            //        "patientAge"
-            //    ]
-            //},
-            "providerFirstName": {
-                "type": "string",
-                "minLength": 2,
-                "description": "Please enter  first name",
-                "custompProperties": [
-                    {
-                        "key": "fhirElement",
-                        "value": "Practitioner.name.where(use='official').given.first()"
-                    }
-                ]
-            },
-            "providerLastName": {
-                "type": "string",
-                "minLength": 2,
-                "description": "Please enter last name",
-                "custompProperties": [
-                    {
-                        "key": "fhirElement",
-                        "value": "Practitioner.name.where(use='official').family.first()"
-                    }
-                ]
-            },
-            "providerBirthDate": {
-                "type": "string",
-                "format": "date"
-            }
-        },
-       
-    };
-    const uischema = {
-        "type": "HorizontalLayout",
-        "elements": [
-            {
-                "type": "Group",
-                "label": "Patient Information",
-                "elements": [
-                    {
-                        "type": "VerticalLayout",
-                        "elements": [
-                            {
-                                "type": "Control",
-                                "scope": "#/properties/patientFirstName"
-                            },
-                            {
-                                "type": "Control",
-                                "scope": "#/properties/patientLastName"
-                            },
-                            //{
-                            //    "type": "Control",
-                            //    "scope": "#/properties/personalData/properties/patientAge"
-                            //},
-                            {
-                                "type": "Control",
-                                "scope": "#/properties/patientBirthDate"
-                            },
-                            {
-                                "type": "Control",
-                                "scope": "#/properties/patientPhone"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "type": "Group",
-                "label": "Practitioner Information",
-                "elements": [
-                    {
-                        "type": "VerticalLayout",
-                        "elements": [
-                            {
-                                "type": "Control",
-                                "label": "First Name",
-                                "scope": "#/properties/providerFirstName"
-                            },
-                            {
-                                "type": "Control",
-                                "label": "Last Name",
-                                "scope": "#/properties/providerLastName"
-                            },
-                            {
-                                "type": "Control",
-                                "scope": "#/properties/providerBirthDate"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    };
 
   
     const fhirResourceState = useSelector(selectFhirResources);//this is fhir patient need to use fhir path to get its details.
@@ -174,6 +192,7 @@ function FhirForm() {
 
     console.log('patient state seleted succ from the store');   
 
+    const [initialFormState, setInitialFormState] = useState(null);
     const [submissionState, setSubmissionState] = useState(null);
 
     const findInFhirPath = (resource: any, path: string) => {
@@ -202,16 +221,8 @@ function FhirForm() {
                     }
                    
                 });
-               
-
-                //schemaResolver(schema).forEach((fhirPath, key) => {
-                //    const value = findInFhirPath(practitioner, fhirPath);
-                //    initialFormData[key] = value[0];
-                //});
-
-                //console.log('setting SubmissionState in useEffect to:');
                 
-                setSubmissionState(initialFormData);
+                setInitialFormState(initialFormData);
             }
         } catch (error: any) {
             if (error.response) {
@@ -223,29 +234,25 @@ function FhirForm() {
             }
         }
        
-    }, [fhirResourceState]);//avoid using object directly as depandancy firstobj is not === to 2nd object// or use premitives
+    }, [fhirResourceState.fhirResouces.patient, fhirResourceState.fhirResouces.practitioner, fhirResourceState.status]);//avoid using object directly as depandancy firstobj is not === to 2nd object// or use premitives
 
 
 
     const handleFormChange = (data: any, errors: any) => {
         console.log('data on form change');
         console.log(data);
-        //console.log('data on form change error');
-        //console.log(errors);
+       
        
         if (data)
             setSubmissionState(data);
     }
 
-    const handleFormSubmit = (event: any) => {
-        console.log(event);
-      event.preventDefault()
+    const handleFormSubmit = () => {
         if (submissionState) {
 
+            console.log('submission json:');
             console.log(submissionState);
-            const entry: any = JSON.parse(JSON.stringify(submissionState));
-
-            console.log(entry);
+          
 
             const submitPosts = async () => {
                 try {
@@ -254,6 +261,8 @@ function FhirForm() {
 
                     //reset form after adding the post
                     setSubmissionState(null);
+                    setInitialFormState(null);
+                    
 
                 } catch (error: any) {
                     if (error.response) {
@@ -276,29 +285,32 @@ function FhirForm() {
             submitPosts();
         }
     }
-   // const log = (type: any) => console.log.bind(console, type);
+ 
 
-    return (       
-        <article className="post">
-            {             
+    return (  
+            <article className="post">
+                {             
                 <>
-                  
-                {/*{console.log('print state')}*/}
-                {/*{console.log(submissionState)}*/}
-                 
-                <JsonForms
-                    schema={schema}
-                    uischema={uischema}
-                    data={submissionState}
-                    renderers={materialRenderers}
-                    cells={materialCells}
-                    onChange={({ errors, data }) => handleFormChange(data, errors)}
-                />
-              
-                <button type='button' onClick={handleFormSubmit}>Update Post</button>
+                    <ThemeProvider theme={theme}>
+                   
+                    <JsonForms
+                        schema={schema}
+                        uischema={uischema}
+                        data={initialFormState}
+                        renderers={materialRenderers}
+                        cells={materialCells}
+                        onChange={({ errors, data }) => handleFormChange(data, errors)}
+                            />
 
-            </>}
-        </article>
+                        <Button onClick={handleFormSubmit}>Submit Form</Button>
+                     
+                    </ThemeProvider>
+              
+                   
+
+                </>}
+                </article>
+      
     );
 }
 

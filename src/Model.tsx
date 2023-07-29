@@ -1,4 +1,4 @@
-import { IChangeEvent } from "@rjsf/core"
+
 import { FormEvent } from "react"
 
 export type PostType = {
@@ -14,12 +14,6 @@ export type PostProp = {
     
 }
 
-export type FormProp = {
-    submissionState?: any
-    handleFormChange?: (data: IChangeEvent, controlId?: string) => void,
-    handleFormSubmit?: (data: IChangeEvent, event: FormEvent) => void,
-    handleFormError?: () => void,
-}
 
 
 

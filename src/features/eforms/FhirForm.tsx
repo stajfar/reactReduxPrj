@@ -12,19 +12,68 @@ import {
 } from '@jsonforms/material-renderers';
 import { JsonForms } from '@jsonforms/react';
 
-import { Button } from '@mui/material';
-import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
-import { green, purple } from '@mui/material/colors';
+import { Button, TextField } from '@mui/material';
+import { createTheme, ThemeProvider, styled, Theme, useTheme, ThemeOptions } from '@mui/material/styles';
+import { outlinedInputClasses } from '@mui/material/OutlinedInput';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: purple[500],
-        },
-        secondary: {
-            main: green[500],
-        },
+import RatingControl from '../../CustomComponents/OutlinedTextFieldControl';
+import ratingControlTester from '../../CustomComponents/OutlinedTextFieldControlTester';
+
+
+
+
+const renderers = [
+    ...materialRenderers,
+    //register custom renderers
+    { tester: ratingControlTester, renderer: RatingControl },
+   
+];
+
+
+
+const customTheme2 = (outerTheme: Theme) => createTheme({
+    components: {
+        MuiTextField: {
+            styleOverrides: {
+                root: {
+                    // this is styles for the new variants
+                    "&.subvariant-hovered": {
+                       
+                        "& .MuiInputBase-input:hover + fieldset": {
+                            border: `2px solid blue`
+                        },
+                        "& .MuiInputBase-input:focus + fieldset": {
+                            border: `2px solid blue`
+                        }
+                    }
+                }
+            }
+        }
     }
+});
+
+
+const customTheme = (outerTheme: Theme) => createTheme({
+    palette: {
+        mode: outerTheme.palette.mode,
+    },
+    components: {       
+        MuiTextField: {
+            styleOverrides: {
+                root: {
+                    '--TextField-brandBorderColor': '#E0E3E7',
+                    '--TextField-brandBorderHoverColor': '#B2BAC2',
+                    '--TextField-brandBorderFocusedColor': '#6F7E8C',
+                    '& label.Mui-focused': {
+                        color: 'var(--TextField-brandBorderFocusedColor)',
+                    },
+                },
+            },
+        },
+    },
 });
 
 
@@ -74,6 +123,10 @@ const schema = {
                     "value": "Patient.telecom.where(system='phone').value"
                 }
             ]
+        },
+        "patientFax": {
+            "type": "string"
+           
         },
         //"personalData": {
         //    "type": "object",
@@ -145,6 +198,11 @@ const uischema = {
                         {
                             "type": "Control",
                             "scope": "#/properties/patientPhone"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/patientFax",
+                            "options": { "format": "outlinedTextFiled"}
                         }
                     ]
                 }
@@ -286,23 +344,36 @@ function FhirForm() {
         }
     }
  
-
+    const outerTheme = useTheme();
     return (  
             <article className="post">
                 {             
                 <>
-                    <ThemeProvider theme={theme}>
+                    <ThemeProvider theme={customTheme2(outerTheme)}>
                    
                     <JsonForms
                         schema={schema}
                         uischema={uischema}
                         data={initialFormState}
-                        renderers={materialRenderers}
+                            renderers={renderers}
                         cells={materialCells}
+                        
                         onChange={({ errors, data }) => handleFormChange(data, errors)}
                             />
 
                         <Button onClick={handleFormSubmit}>Submit Form</Button>
+
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                            <DatePicker label="Basic date picker" />
+
+                        </LocalizationProvider>
+                        <TextField id="outlined-basic" label="Outlinedd" className="subvariant-hovered" />
+
+                        <TextField
+                            className="subvariant-hovered"
+                            label="Pseudo-variant"
+                        />
                      
                     </ThemeProvider>
               

@@ -1,0 +1,263 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Group",
+              "elements": [
+                {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "HorizontalLayout",
+                      "elements": [
+                        {
+                          "type": "Control",
+                          "scope": "#/properties/name",
+                          "label": "Patient Last Name"
+                        },
+                        {
+                          "type": "Control",
+                          "scope": "#/properties/name",
+                          "label": "Patient First Name"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "HorizontalLayout",
+                      "elements": [
+                        {
+                          "type": "Control",
+                          "scope": "#/properties/name",
+                          "label": "Personal Health Number"
+                        },
+                        {
+                          "type": "Control",
+                          "scope": "#/properties/name",
+                          "label": "Date of Birth"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/nationality",
+                      "label": "Gender"
+                    },
+                    {
+                      "type": "Group",
+                      "elements": [
+                        {
+                          "type": "VerticalLayout",
+                          "elements": [
+                            {
+                              "type": "HorizontalLayout",
+                              "elements": [
+                                {
+                                  "type": "Control",
+                                  "scope": "#/properties/name",
+                                  "label": "Country"
+                                },
+                                {
+                                  "type": "Control",
+                                  "scope": "#/properties/name",
+                                  "label": "City/Town"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Control",
+                              "scope": "#/properties/name",
+                              "label": "Province/Teritory"
+                            },
+                            {
+                              "type": "HorizontalLayout",
+                              "elements": [
+                                {
+                                  "type": "Control",
+                                  "scope": "#/properties/name",
+                                  "label": "Street Address"
+                                },
+                                {
+                                  "type": "Control",
+                                  "scope": "#/properties/name",
+                                  "label": "Postal Code"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "label": "Address"
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/name",
+                      "label": "Phone Number"
+                    }
+                  ]
+                }
+              ],
+              "label": "Patient Information"
+            },
+            {
+              "type": "Group",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/name",
+                  "label": "Alergies"
+                }
+              ],
+              "label": "Alergies"
+            }
+          ]
+        },
+        {
+          "type": "Group",
+          "elements": [
+            {
+              "type": "VerticalLayout",
+              "elements": [
+                {
+                  "type": "HorizontalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/name",
+                      "label": "Provider Last Name"
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/name",
+                      "label": "Provider First Name"
+                    }
+                  ]
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/name",
+                  "label": "Provider ID"
+                }
+              ]
+            }
+          ],
+          "label": "Provider Information"
+        }
+      ]
+    },
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        {
+          "type": "Label",
+          "text": "Eligibility Criteria"
+        },
+        {
+          "type": "Group",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/nationality"
+            },
+            {
+              "type": "Label",
+              "text": "OR"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/nationality"
+            },
+            {
+              "type": "Label",
+              "text": "AND"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/name"
+            }
+          ]
+        },
+        {
+          "type": "Label",
+          "text": "Drug Interaction"
+        },
+        {
+          "type": "Group",
+          "elements": [
+            {
+              "type": "Label",
+              "text": "Drug-Drug Interactions assessed"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/nationality"
+            }
+          ]
+        },
+        {
+          "type": "Label",
+          "text": "Prescription"
+        },
+        {
+          "type": "Group",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/nationality",
+              "label": "Current kidney function"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/nationality",
+              "label": "Fax Location"
+            },
+            {
+              "type": "Label",
+              "text": "Please use the drop down list above to find the pharm"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/name",
+              "label": "If this fax is received in error, call:"
+            }
+          ]
+        },
+        {
+          "type": "Label",
+          "text": "Signature"
+        },
+        {
+          "type": "Group",
+          "elements": [
+            {
+              "type": "Label",
+              "text": "Put file upload here"
+            }
+          ]
+        },
+        {
+          "type": "Label",
+          "text": "Additional Information"
+        },
+        {
+          "type": "Group",
+          "elements": [
+            {
+              "type": "Label",
+              "text": "C Group 1 includes ....."
+            },
+            {
+              "type": "Label",
+              "text": "C Group 2 includes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -17,7 +17,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     display: flex;
-    background-color: #efefef;
+   
 }
 
 #root {
@@ -83,6 +83,10 @@ a {
 .searchForm {
     width: 80%;
     padding: 1rem 0 0 0.75rem;
+}
+
+.fhirForm {
+    margin: 1rem;
 }
 
     .searchForm input[type="text"] {

@@ -12,7 +12,7 @@ import {
 } from '@jsonforms/material-renderers';
 import { JsonForms } from '@jsonforms/react';
 
-import { Button, TextField } from '@mui/material';
+import { Button, CardActions, TextField } from '@mui/material';
 import { createTheme, ThemeProvider, styled, Theme, useTheme, ThemeOptions } from '@mui/material/styles';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -34,47 +34,90 @@ const renderers = [
 
 
 
-const customTheme2 = (outerTheme: Theme) => createTheme({
+const customTheme = (outerTheme: Theme) => createTheme({
+    //palette: {
+    //    background: {
+    //        paper: '#EFF7FF', // your color
+
+    //    },
+    //},
+    typography: {
+        // In Chinese and Japanese the characters are usually larger,
+        // so a smaller fontsize may be appropriate.
+        fontSize: 12,
+    },
+    spacing: 4,
     components: {
-        MuiTextField: {
+        MuiCardHeader: {
             styleOverrides: {
                 root: {
-                    // this is styles for the new variants
-                    "&.subvariant-hovered": {
-                       
-                        "& .MuiInputBase-input:hover + fieldset": {
-                            border: `2px solid blue`
-                        },
-                        "& .MuiInputBase-input:focus + fieldset": {
-                            border: `2px solid blue`
-                        }
-                    }
-                }
+                    'background': '#00000008',
+                    'padding': 10
+
+                },
             }
-        }
+            
+        },
+        MuiButtonBase: {
+            defaultProps: {
+                // The props to change the default for.
+                disableRipple: false, // No more ripple, on the whole 
+                
+            },
+            styleOverrides: {
+                root: {
+                    //'margin': '1rem',
+                   
+                },
+            },
+        },
+        MuiTextField: {
+            defaultProps: {
+
+                color: "error"
+
+            },
+            styleOverrides: {
+                root: {
+                    //'margin': '1rem',
+
+                },
+            },
+        },
+        //MuiInput: {
+        //    defaultProps: {
+
+        //        color: "secondary",
+        //       // margin: "dense"
+
+        //    },
+        //    styleOverrides: {
+        //        root: {
+        //           // 'marginBottom': '100px',
+
+        //        },
+        //    },
+        //},
+        MuiFormControl: {
+            defaultProps: {
+
+                color: "secondary",
+                margin: "dense"
+
+            },
+            styleOverrides: {
+                root: {
+                  //  'marginBottom': '20px',
+
+                },
+            },
+        },
+        
+        
     }
 });
 
 
-const customTheme = (outerTheme: Theme) => createTheme({
-    palette: {
-        mode: outerTheme.palette.mode,
-    },
-    components: {       
-        MuiTextField: {
-            styleOverrides: {
-                root: {
-                    '--TextField-brandBorderColor': '#E0E3E7',
-                    '--TextField-brandBorderHoverColor': '#B2BAC2',
-                    '--TextField-brandBorderFocusedColor': '#6F7E8C',
-                    '& label.Mui-focused': {
-                        color: 'var(--TextField-brandBorderFocusedColor)',
-                    },
-                },
-            },
-        },
-    },
-});
 
 
 //move schema and ui schema to DB and get them from fhir store
@@ -243,10 +286,62 @@ const schema = {
                 }
             ]
         },
-        "providerBirthDate": {
+        "providerID": {
             "type": "string",
-            "format": "date"
-        },    
+            "minLength": 2,
+            "description": "Please enter last name",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Practitioner.name.where(use='official').family.first()"
+                }
+            ]
+        },
+        "providerCountry": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Practitioner.address[0].country"
+                }
+            ]
+        },
+        "providerCityTown": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Practitioner.address[0].city"
+                }
+            ]
+        },
+        "providerProvinceTeritory": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Practitioner.address[0].state"
+                }
+            ]
+        },
+        "providerStreetAddress": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Practitioner.address[0].line[0]"
+                }
+            ]
+        },
+        "providerPostalCode": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Practitioner.address[0].postalCode"
+                }
+            ]
+        },
         "name": {
             "type": "string",
             "minLength": 3
@@ -305,6 +400,13 @@ const schema = {
         },
         "occupation": {
             "type": "string"
+        },
+        "medicationSubForm": {
+            "type": "string",
+            "enum": [
+                "medication1",
+                "medication2"
+            ]
         }
     }
 };
@@ -312,6 +414,15 @@ const schema = {
 const uischema = {
     "type": "VerticalLayout",
     "elements": [
+        {
+            "type": "Group",
+            "elements": [
+                {
+                    "type": "Label",
+                    "text": "This Would be the Form Title and Could be a Custom Component to apply styling"
+                }
+            ]
+        },
         {
             "type": "HorizontalLayout",
             "elements": [
@@ -353,7 +464,7 @@ const uischema = {
                                                     "label": "Date of Birth"
                                                 }
                                             ]
-                                        },                                       
+                                        },
                                         {
                                             "type": "Control",
                                             "scope": "#/properties/patientGender",
@@ -427,9 +538,11 @@ const uischema = {
                                     "label": "Alergies"
                                 },
                                 {
-                                    "type": "Control",//this has issue
+                                    "type": "Control",
                                     "scope": "#/properties/patientFax",
-                                    "options": { "format": "outlinedTextFiled" }
+                                    "options": {
+                                        "format": "outlinedTextFiled"
+                                    }
                                 }
                             ],
                             "label": "Alergies"
@@ -459,8 +572,54 @@ const uischema = {
                                 },
                                 {
                                     "type": "Control",
-                                    "scope": "#/properties/name",
+                                    "scope": "#/properties/providerID",
                                     "label": "Provider ID"
+                                },
+                                {
+                                    "type": "Group",
+                                    "elements": [
+                                        {
+                                            "type": "VerticalLayout",
+                                            "elements": [
+                                                {
+                                                    "type": "HorizontalLayout",
+                                                    "elements": [
+                                                        {
+                                                            "type": "Control",
+                                                            "scope": "#/properties/providerCountry",
+                                                            "label": "Country"
+                                                        },
+                                                        {
+                                                            "type": "Control",
+                                                            "scope": "#/properties/providerCityTown",
+                                                            "label": "City/Town"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "Control",
+                                                    "scope": "#/properties/providerProvinceTeritory",
+                                                    "label": "Province/Teritory"
+                                                },
+                                                {
+                                                    "type": "HorizontalLayout",
+                                                    "elements": [
+                                                        {
+                                                            "type": "Control",
+                                                            "scope": "#/properties/providerStreetAddress",
+                                                            "label": "Street Address"
+                                                        },
+                                                        {
+                                                            "type": "Control",
+                                                            "scope": "#/properties/providerPostalCode",
+                                                            "label": "Postal Code"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "label": "Address"
                                 }
                             ]
                         }
@@ -473,8 +632,70 @@ const uischema = {
             "type": "VerticalLayout",
             "elements": [
                 {
-                    "type": "Label",
-                    "text": "Eligibility Criteria"
+                    "type": "Group",
+                    "elements": [
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/medicationSubForm",
+                            "label": "medication Form Selection"
+                        },
+                        {
+                            "type": "Group",
+                            "elements": [
+                                {
+                                    "type": "Label",
+                                    "text": "Medication 1 instructions sample"
+                                },
+                                {
+                                    "type": "Control",
+                                    "scope": "#/properties/name"
+                                }
+                            ],
+                            "label": "Medication 1",
+                            "rule": {
+                                "effect": "SHOW",
+                                "condition": {
+                                    "scope": "#/properties/medicationSubForm",
+                                    "schema": {
+                                        "const": "medication1"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Group",
+                            "elements": [
+                                {
+                                    "type": "Label",
+                                    "text": "Medication 2 sample instructions"
+                                },
+                                {
+                                    "type": "HorizontalLayout",
+                                    "elements": [
+                                        {
+                                            "type": "Control",
+                                            "scope": "#/properties/name"
+                                        },
+                                        {
+                                            "type": "Control",
+                                            "scope": "#/properties/name"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": {
+                                "effect": "SHOW",
+                                "condition": {
+                                    "scope": "#/properties/medicationSubForm",
+                                    "schema": {
+                                        "const": "medication2"
+                                    }
+                                }
+                            },
+                            "label": "Medication 2"
+                        }
+                    ],
+                    "label": "Medication"
                 },
                 {
                     "type": "Group",
@@ -499,11 +720,8 @@ const uischema = {
                             "type": "Control",
                             "scope": "#/properties/name"
                         }
-                    ]
-                },
-                {
-                    "type": "Label",
-                    "text": "Drug Interaction"
+                    ],
+                    "label": "Eligibility Criteria"
                 },
                 {
                     "type": "Group",
@@ -516,11 +734,8 @@ const uischema = {
                             "type": "Control",
                             "scope": "#/properties/nationality"
                         }
-                    ]
-                },
-                {
-                    "type": "Label",
-                    "text": "Prescription"
+                    ],
+                    "label": "Drug Interaction"
                 },
                 {
                     "type": "Group",
@@ -544,11 +759,8 @@ const uischema = {
                             "scope": "#/properties/name",
                             "label": "If this fax is received in error, call:"
                         }
-                    ]
-                },
-                {
-                    "type": "Label",
-                    "text": "Signature"
+                    ],
+                    "label": "Prescription"
                 },
                 {
                     "type": "Group",
@@ -557,11 +769,8 @@ const uischema = {
                             "type": "Label",
                             "text": "Put file upload here"
                         }
-                    ]
-                },
-                {
-                    "type": "Label",
-                    "text": "Additional Information"
+                    ],
+                    "label": "Signature"
                 },
                 {
                     "type": "Group",
@@ -574,7 +783,8 @@ const uischema = {
                             "type": "Label",
                             "text": "C Group 2 includes"
                         }
-                    ]
+                    ],
+                    "label": "Additional Information"
                 }
             ]
         }
@@ -611,7 +821,7 @@ function FhirForm() {
                 const patient = fhirResourceState.fhirResouces.patient;
                 const practitioner = fhirResourceState.fhirResouces.practitioner;
 
-                console.log(patient);
+                console.log(practitioner);
 
                 let initialFormData: any = {};
                 schemaResolver(schema).forEach((fhirPath, key) => {
@@ -693,10 +903,10 @@ function FhirForm() {
  
     const outerTheme = useTheme();
     return (  
-            <article className="post">
+        <article className="fhirForm">
                 {             
                 <>
-                    <ThemeProvider theme={customTheme2(outerTheme)}>
+                    <ThemeProvider theme={customTheme(outerTheme)}>
                    
                         <JsonForms
                             schema={schema}
@@ -705,9 +915,11 @@ function FhirForm() {
                             renderers={renderers}
                             cells={materialCells}                        
                             onChange={({ errors, data }) => handleFormChange(data, errors)}
-                         />
+                        />
 
-                        <Button variant="contained" onClick={handleFormSubmit}>Submit Form</Button>
+                        <CardActions sx={{ justifyContent: "center" }}>
+                            <Button variant="contained" onClick={handleFormSubmit}>Submit Form</Button>
+                        </CardActions>
                      
                     </ThemeProvider>
               

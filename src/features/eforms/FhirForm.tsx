@@ -80,6 +80,7 @@ const customTheme = (outerTheme: Theme) => createTheme({
 //move schema and ui schema to DB and get them from fhir store
 const schema = {
     "type": "object",
+    "title": "Person",
     "properties": {
         "patientFirstName": {
             "type": "string",
@@ -103,16 +104,6 @@ const schema = {
                 }
             ]
         },
-        "patientBirthDate": {
-            "type": "string",
-            "format": "date",
-            "custompProperties": [
-                {
-                    "key": "fhirElement",
-                    "value": "Patient.birthDate"
-                }
-            ]
-        },
         "patientPhone": {
             "type": "string",
             "minLength": 2,
@@ -124,9 +115,99 @@ const schema = {
                 }
             ]
         },
-        "patientFax": {
+        "patientBirthDate": {
+            "type": "string",
+            "format": "date",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.birthDate"
+                }
+            ]
+        },        
+        "patientGender": {
+            "type": "string",
+            "oneOf": [
+                {
+                    "const": "female",
+                    "title": "Female"
+                },
+                {
+                    "const": "male",
+                    "title": "Male"
+                },
+                {
+                    "const": "other",
+                    "title": "Other"
+                },
+                {
+                    "const": "unknown",
+                    "title": "Unknown"
+                }
+            ],
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.gender"
+                }
+            ]
+        },
+        "patientPHN": {
+            "type": "string",          
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.identifier.where(system='http://hl7.org/fhir/sid/us-ssn').value"
+                }
+            ]
+        },
+        "patientCountry": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.address[0].country"
+                }
+            ]
+        },
+        "patientCityTown": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.address[0].city"
+                }
+            ]
+        },
+        "patientProvinceTeritory": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.address[0].state"
+                }
+            ]
+        },
+        "patientStreetAddress": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.address[0].line[0]"
+                }
+            ]
+        },
+        "patientPostalCode": {
+            "type": "string",
+            "custompProperties": [
+                {
+                    "key": "fhirElement",
+                    "value": "Patient.address[0].postalCode"
+                }
+            ]
+        },
+        "alergies": {
             "type": "string"
-           
         },
         //"personalData": {
         //    "type": "object",
@@ -165,69 +246,333 @@ const schema = {
         "providerBirthDate": {
             "type": "string",
             "format": "date"
+        },    
+        "name": {
+            "type": "string",
+            "minLength": 3
+        },
+        "birthDate": {
+            "type": "string",
+            "format": "date"
+        },
+        "personalData": {
+            "type": "object",
+            "required": [
+                "age",
+                "height"
+            ],
+            "properties": {
+                "age": {
+                    "type": "integer",
+                    "description": "Please enter your age."
+                },
+                "height": {
+                    "type": "number"
+                },
+                "drivingSkill": {
+                    "type": "number",
+                    "maximum": 10,
+                    "minimum": 1,
+                    "default": 7
+                }
+            }
+        },
+        "friends": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "title": "Friend",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "isClose": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        "nationality": {
+            "type": "string",
+            "enum": [
+                "DE",
+                "IT",
+                "JP",
+                "US",
+                "RU",
+                "Other"
+            ]
+        },
+        "occupation": {
+            "type": "string"
         }
-    },
-
+    }
 };
+
 const uischema = {
-    "type": "HorizontalLayout",
+    "type": "VerticalLayout",
     "elements": [
         {
-            "type": "Group",
-            "label": "Patient Information",
+            "type": "HorizontalLayout",
             "elements": [
                 {
                     "type": "VerticalLayout",
                     "elements": [
                         {
-                            "type": "Control",
-                            "scope": "#/properties/patientFirstName"
+                            "type": "Group",
+                            "elements": [
+                                {
+                                    "type": "VerticalLayout",
+                                    "elements": [
+                                        {
+                                            "type": "HorizontalLayout",
+                                            "elements": [
+                                                {
+                                                    "type": "Control",
+                                                    "scope": "#/properties/patientFirstName",
+                                                    "label": "Patient First Name"
+                                                },
+                                                {
+                                                    "type": "Control",
+                                                    "scope": "#/properties/patientLastName",
+                                                    "label": "Patient Last Name"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "HorizontalLayout",
+                                            "elements": [
+                                                {
+                                                    "type": "Control",
+                                                    "scope": "#/properties/patientPHN",
+                                                    "label": "Personal Health Number"
+                                                },
+                                                {
+                                                    "type": "Control",
+                                                    "scope": "#/properties/patientBirthDate",
+                                                    "label": "Date of Birth"
+                                                }
+                                            ]
+                                        },                                       
+                                        {
+                                            "type": "Control",
+                                            "scope": "#/properties/patientGender",
+                                            "label": "Gender",
+                                            "options": {
+                                                "format": "radio"
+                                            }
+                                        },
+                                        {
+                                            "type": "Group",
+                                            "elements": [
+                                                {
+                                                    "type": "VerticalLayout",
+                                                    "elements": [
+                                                        {
+                                                            "type": "HorizontalLayout",
+                                                            "elements": [
+                                                                {
+                                                                    "type": "Control",
+                                                                    "scope": "#/properties/patientCountry",
+                                                                    "label": "Country"
+                                                                },
+                                                                {
+                                                                    "type": "Control",
+                                                                    "scope": "#/properties/patientCityTown",
+                                                                    "label": "City/Town"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "Control",
+                                                            "scope": "#/properties/patientProvinceTeritory",
+                                                            "label": "Province/Teritory"
+                                                        },
+                                                        {
+                                                            "type": "HorizontalLayout",
+                                                            "elements": [
+                                                                {
+                                                                    "type": "Control",
+                                                                    "scope": "#/properties/patientStreetAddress",
+                                                                    "label": "Street Address"
+                                                                },
+                                                                {
+                                                                    "type": "Control",
+                                                                    "scope": "#/properties/patientPostalCode",
+                                                                    "label": "Postal Code"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "label": "Address"
+                                        },
+                                        {
+                                            "type": "Control",
+                                            "scope": "#/properties/patientPhone",
+                                            "label": "Phone Number"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "label": "Patient Information"
                         },
                         {
-                            "type": "Control",
-                            "scope": "#/properties/patientLastName"
-                        },
-                        //{
-                        //    "type": "Control",
-                        //    "scope": "#/properties/personalData/properties/patientAge"
-                        //},
-                        {
-                            "type": "Control",
-                            "scope": "#/properties/patientBirthDate"
-                        },
-                        {
-                            "type": "Control",
-                            "scope": "#/properties/patientPhone"
-                        },
-                        {
-                            "type": "Control",
-                            "scope": "#/properties/patientFax",
-                            "options": { "format": "outlinedTextFiled"}
+                            "type": "Group",
+                            "elements": [
+                                {
+                                    "type": "Control",
+                                    "scope": "#/properties/alergies",
+                                    "label": "Alergies"
+                                },
+                                {
+                                    "type": "Control",//this has issue
+                                    "scope": "#/properties/patientFax",
+                                    "options": { "format": "outlinedTextFiled" }
+                                }
+                            ],
+                            "label": "Alergies"
                         }
                     ]
+                },
+                {
+                    "type": "Group",
+                    "elements": [
+                        {
+                            "type": "VerticalLayout",
+                            "elements": [
+                                {
+                                    "type": "HorizontalLayout",
+                                    "elements": [
+                                        {
+                                            "type": "Control",
+                                            "scope": "#/properties/providerLastName",
+                                            "label": "Provider Last Name"
+                                        },
+                                        {
+                                            "type": "Control",
+                                            "scope": "#/properties/providerFirstName",
+                                            "label": "Provider First Name"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "Control",
+                                    "scope": "#/properties/name",
+                                    "label": "Provider ID"
+                                }
+                            ]
+                        }
+                    ],
+                    "label": "Provider Information"
                 }
             ]
         },
         {
-            "type": "Group",
-            "label": "Practitioner Information",
+            "type": "VerticalLayout",
             "elements": [
                 {
-                    "type": "VerticalLayout",
+                    "type": "Label",
+                    "text": "Eligibility Criteria"
+                },
+                {
+                    "type": "Group",
                     "elements": [
                         {
                             "type": "Control",
-                            "label": "First Name",
-                            "scope": "#/properties/providerFirstName"
+                            "scope": "#/properties/nationality"
+                        },
+                        {
+                            "type": "Label",
+                            "text": "OR"
                         },
                         {
                             "type": "Control",
-                            "label": "Last Name",
-                            "scope": "#/properties/providerLastName"
+                            "scope": "#/properties/nationality"
+                        },
+                        {
+                            "type": "Label",
+                            "text": "AND"
                         },
                         {
                             "type": "Control",
-                            "scope": "#/properties/providerBirthDate"
+                            "scope": "#/properties/name"
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "text": "Drug Interaction"
+                },
+                {
+                    "type": "Group",
+                    "elements": [
+                        {
+                            "type": "Label",
+                            "text": "Drug-Drug Interactions assessed"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/nationality"
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "text": "Prescription"
+                },
+                {
+                    "type": "Group",
+                    "elements": [
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/nationality",
+                            "label": "Current kidney function"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/nationality",
+                            "label": "Fax Location"
+                        },
+                        {
+                            "type": "Label",
+                            "text": "Please use the drop down list above to find the pharm"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/name",
+                            "label": "If this fax is received in error, call:"
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "text": "Signature"
+                },
+                {
+                    "type": "Group",
+                    "elements": [
+                        {
+                            "type": "Label",
+                            "text": "Put file upload here"
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "text": "Additional Information"
+                },
+                {
+                    "type": "Group",
+                    "elements": [
+                        {
+                            "type": "Label",
+                            "text": "C Group 1 includes ....."
+                        },
+                        {
+                            "type": "Label",
+                            "text": "C Group 2 includes"
                         }
                     ]
                 }
@@ -265,6 +610,8 @@ function FhirForm() {
             if (fhirResourceState.status === 'succeeded') {
                 const patient = fhirResourceState.fhirResouces.patient;
                 const practitioner = fhirResourceState.fhirResouces.practitioner;
+
+                console.log(patient);
 
                 let initialFormData: any = {};
                 schemaResolver(schema).forEach((fhirPath, key) => {
@@ -351,29 +698,16 @@ function FhirForm() {
                 <>
                     <ThemeProvider theme={customTheme2(outerTheme)}>
                    
-                    <JsonForms
-                        schema={schema}
-                        uischema={uischema}
-                        data={initialFormState}
+                        <JsonForms
+                            schema={schema}
+                            uischema={uischema}
+                            data={initialFormState}
                             renderers={renderers}
-                        cells={materialCells}
-                        
-                        onChange={({ errors, data }) => handleFormChange(data, errors)}
-                            />
+                            cells={materialCells}                        
+                            onChange={({ errors, data }) => handleFormChange(data, errors)}
+                         />
 
-                        <Button onClick={handleFormSubmit}>Submit Form</Button>
-
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                            <DatePicker label="Basic date picker" />
-
-                        </LocalizationProvider>
-                        <TextField id="outlined-basic" label="Outlinedd" className="subvariant-hovered" />
-
-                        <TextField
-                            className="subvariant-hovered"
-                            label="Pseudo-variant"
-                        />
+                        <Button variant="contained" onClick={handleFormSubmit}>Submit Form</Button>
                      
                     </ThemeProvider>
               

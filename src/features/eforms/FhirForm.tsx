@@ -24,12 +24,11 @@ import ratingControlTester from '../../CustomComponents/OutlinedTextFieldControl
 
 
 
-
 const renderers = [
     ...materialRenderers,
     //register custom renderers
     { tester: ratingControlTester, renderer: RatingControl },
-   
+
 ];
 
 
@@ -56,18 +55,18 @@ const customTheme = (outerTheme: Theme) => createTheme({
 
                 },
             }
-            
+
         },
         MuiButtonBase: {
             defaultProps: {
                 // The props to change the default for.
                 disableRipple: false, // No more ripple, on the whole 
-                
+
             },
             styleOverrides: {
                 root: {
                     //'margin': '1rem',
-                   
+
                 },
             },
         },
@@ -107,13 +106,13 @@ const customTheme = (outerTheme: Theme) => createTheme({
             },
             styleOverrides: {
                 root: {
-                  //  'marginBottom': '20px',
+                    //  'marginBottom': '20px',
 
                 },
             },
         },
-        
-        
+
+
     }
 });
 
@@ -124,6 +123,10 @@ const customTheme = (outerTheme: Theme) => createTheme({
 const schema = {
     "type": "object",
     "title": "Person",
+    "required": [
+        "patientFirstName",
+        "patientLastName"
+    ],    
     "properties": {
         "patientFirstName": {
             "type": "string",
@@ -167,7 +170,7 @@ const schema = {
                     "value": "Patient.birthDate"
                 }
             ]
-        },        
+        },
         "patientGender": {
             "type": "string",
             "oneOf": [
@@ -196,7 +199,7 @@ const schema = {
             ]
         },
         "patientPHN": {
-            "type": "string",          
+            "type": "string",
             "custompProperties": [
                 {
                     "key": "fhirElement",
@@ -792,29 +795,27 @@ const uischema = {
 };
 
 
-
-
 function FhirForm() {
 
- 
+    
 
 
-  
     const fhirResourceState = useSelector(selectFhirResources);//this is fhir patient need to use fhir path to get its details.
-   
 
-    console.log('patient state seleted succ from the store');   
+
+    console.log('patient state seleted succ from the store');
 
     const [initialFormState, setInitialFormState] = useState(null);
     const [submissionState, setSubmissionState] = useState(null);
+    const [submissionErrorState, setSubmissionError] = useState(null);
 
     const findInFhirPath = (resource: any, path: string) => {
         return fhirPath.evaluate(resource, path, undefined, fhirpath_r4_model);
     }
 
 
-    useEffect(() => {       
-      console.log('use effect executing');
+    useEffect(() => {
+        console.log('use effect executing');
         try {
 
             if (fhirResourceState.status === 'succeeded') {
@@ -834,9 +835,9 @@ function FhirForm() {
                         const value = findInFhirPath(practitioner, fhirPath);
                         initialFormData[key] = value[0];
                     }
-                   
+
                 });
-                
+
                 setInitialFormState(initialFormData);
             }
         } catch (error: any) {
@@ -848,7 +849,7 @@ function FhirForm() {
                 console.log(error.message);
             }
         }
-       
+
     }, [fhirResourceState.fhirResouces.patient, fhirResourceState.fhirResouces.practitioner, fhirResourceState.status]);//avoid using object directly as depandancy firstobj is not === to 2nd object// or use premitives
 
 
@@ -856,18 +857,26 @@ function FhirForm() {
     const handleFormChange = (data: any, errors: any) => {
         console.log('data on form change');
         console.log(data);
-       
-       
+
+        console.log('errors on form change');
+        console.log(errors);
+        setSubmissionError(errors);
+
         if (data)
             setSubmissionState(data);
     }
 
     const handleFormSubmit = () => {
+        if (submissionErrorState) {
+            console.log('did no submit due to form errors')
+            console.log(submissionErrorState)
+            return;
+        }
         if (submissionState) {
 
             console.log('submission json:');
             console.log(submissionState);
-          
+
 
             const submitPosts = async () => {
                 try {
@@ -877,7 +886,7 @@ function FhirForm() {
                     //reset form after adding the post
                     setSubmissionState(null);
                     setInitialFormState(null);
-                    
+
 
                 } catch (error: any) {
                     if (error.response) {
@@ -898,36 +907,43 @@ function FhirForm() {
                 }
             }
             submitPosts();
+        } else {
+            console.log('Error: Form submission State is empty');
         }
+
+
     }
- 
+
     const outerTheme = useTheme();
-    return (  
+    return (
         <article className="fhirForm">
-                {             
+            {
                 <>
                     <ThemeProvider theme={customTheme(outerTheme)}>
-                   
+
                         <JsonForms
                             schema={schema}
                             uischema={uischema}
                             data={initialFormState}
                             renderers={renderers}
-                            cells={materialCells}                        
+                            cells={materialCells}
                             onChange={({ errors, data }) => handleFormChange(data, errors)}
+                            validationMode='ValidateAndShow'
+                          
+
                         />
 
                         <CardActions sx={{ justifyContent: "center" }}>
                             <Button variant="contained" onClick={handleFormSubmit}>Submit Form</Button>
                         </CardActions>
-                     
+
                     </ThemeProvider>
-              
-                   
+
+
 
                 </>}
-                </article>
-      
+        </article>
+
     );
 }
 
